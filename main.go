@@ -158,7 +158,7 @@ func main() {
 	}
 
 	// construct csv
-	fmt.Println("Account,TFT Unlocked,TFT Locked,TFTA Unlocked,TFTA Locked,Vested,Name")
+	fmt.Println("Account,TFT Unlocked,TFT Locked,TFTA Unlocked,TFTA Locked,Vested,Total,Name")
 
 	for _, acc := range accounts {
 		var err error
@@ -180,6 +180,7 @@ func main() {
 		ltft = lockedtft[acc.AccountID]
 		ltfta = lockedtfta[acc.AccountID]
 		vested = vestingBalance[acc.AccountID]
+		total := tft + ltft + tfta + ltfta + vested
 		note := ""
 		if target, exists := escrows[acc.AccountID]; exists {
 			note = fmt.Sprintf("Escrow account for %s", target)
@@ -187,7 +188,7 @@ func main() {
 			note = fmt.Sprintf("Vesting account for %s", target)
 		}
 
-		fmt.Printf("%s,%.7f,%.7f,%.7f,%.7f,%.7f,%s\n", acc.AccountID, tft, ltft, tfta, ltfta, vested, note)
+		fmt.Printf("%s,%.7f,%.7f,%.7f,%.7f,%.7f,%.7f,%s\n", acc.AccountID, tft, ltft, tfta, ltfta, vested, total, note)
 	}
 }
 
