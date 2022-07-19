@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"strconv"
 
@@ -15,7 +16,14 @@ const tftaasset = "TFTA:GBUT4GP5GJ6B3XW5PXENHQA7TXJI5GOPW3NF4W3ZIW6OOO4ISY6WNLN2
 
 const vestingDataKey = "tft-vesting"
 
+var (
+	showLockWallets = flag.Bool("show-lock-wallets", false, "Include wallets which are used to time lock tokens in the output")
+	showVestWallets = flag.Bool("show-vesting-wallets", false, "Include wallets which are used to vest tokens in the output")
+)
+
 func main() {
+	flag.Parse()
+
 	client := horizonclient.DefaultPublicNetClient
 
 	tftAccounts := []horizon.Account{}
@@ -182,9 +190,9 @@ func main() {
 		vested = vestingBalance[acc.AccountID]
 		total := tft + ltft + tfta + ltfta + vested
 		note := ""
-		if target, exists := escrows[acc.AccountID]; exists {
+		if target, exists := escrows[acc.AccountID]; exists && *showLockWallets {
 			note = fmt.Sprintf("Escrow account for %s", target)
-		} else if target, exists := vestingAcc[acc.AccountID]; exists {
+		} else if target, exists := vestingAcc[acc.AccountID]; exists && *showVestWallets {
 			note = fmt.Sprintf("Vesting account for %s", target)
 		}
 
