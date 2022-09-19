@@ -8,6 +8,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stellar/go/clients/horizonclient"
 	"github.com/stellar/go/protocols/horizon"
+	"github.com/stellar/go/strkey"
+	"github.com/threefoldtech/rivine/crypto"
+	"github.com/threefoldtech/rivine/types"
 )
 
 const escrowSigner = "preauth_tx"
@@ -166,7 +169,7 @@ func main() {
 	}
 
 	// construct csv
-	fmt.Println("Account,TFT Unlocked,TFT Locked,TFTA Unlocked,TFTA Locked,Vested,Total,Name")
+	fmt.Println("Account,Rivine address,TFT Unlocked,TFT Locked,TFTA Unlocked,TFTA Locked,Vested,Total,Name")
 
 	for _, acc := range accounts {
 		var err error
@@ -196,7 +199,7 @@ func main() {
 			note = fmt.Sprintf("Vesting account for %s", target)
 		}
 
-		fmt.Printf("%s,%.7f,%.7f,%.7f,%.7f,%.7f,%.7f,%s\n", acc.AccountID, tft, ltft, tfta, ltfta, vested, total, note)
+		fmt.Printf("%s,%s,%.7f,%.7f,%.7f,%.7f,%.7f,%.7f,%s\n", acc.AccountID, rivineAddress(acc.AccountID), tft, ltft, tfta, ltfta, vested, total, note)
 	}
 }
 
@@ -249,4 +252,19 @@ func isVestingAccount(acc horizon.Account) (string, bool, error) {
 	}
 
 	return "", false, nil
+}
+
+func rivineAddress(ra string) string {
+	pk, err := strkey.Decode(strkey.VersionByteAccountID, ra)
+	if err != nil {
+		panic(err)
+	}
+
+	var k crypto.PublicKey
+	copy(k[:], pk)
+	a, err := types.NewEd25519PubKeyUnlockHash(k)
+	if err != nil {
+		panic(err)
+	}
+	return a.String()
 }
