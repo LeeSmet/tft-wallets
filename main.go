@@ -193,10 +193,18 @@ func main() {
 		vested = vestingBalance[acc.AccountID]
 		total := tft + ltft + tfta + ltfta + vested
 		note := ""
-		if target, exists := escrows[acc.AccountID]; exists && *showLockWallets {
-			note = fmt.Sprintf("Escrow account for %s", target)
-		} else if target, exists := vestingAcc[acc.AccountID]; exists && *showVestWallets {
-			note = fmt.Sprintf("Vesting account for %s", target)
+		if target, exists := escrows[acc.AccountID]; exists {
+			if *showLockWallets {
+				note = fmt.Sprintf("Escrow account for %s", target)
+			} else {
+				continue
+			}
+		} else if target, exists := vestingAcc[acc.AccountID]; exists {
+			if *showVestWallets {
+				note = fmt.Sprintf("Vesting account for %s", target)
+			} else {
+				continue
+			}
 		}
 
 		fmt.Printf("%s,%s,%.7f,%.7f,%.7f,%.7f,%.7f,%.7f,%s\n", acc.AccountID, rivineAddress(acc.AccountID), tft, ltft, tfta, ltfta, vested, total, note)
